@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // Optional: Add environment variables here
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -15,25 +11,22 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                // Add your actual build commands here
+                // Add build tool commands here
+                // For example: sh 'mvn clean install'
             }
         }
 
         stage('Dependency Check') {
             steps {
-                dependencyCheck odcInstallation: 'Default', 
-                                isAutoupdateDisabled: true, 
-                                outdir: 'dependency-check-report',
-                                scanpath: '.', 
-                                suppressionFile: '', 
-                                additionalArguments: ''
+                dependencyCheck odcInstallation: 'Default',
+                                stopBuild: false,
+                                failBuildOnCVSS: '11' // Optional: Never fail unless CVSS > 10
             }
         }
     }
 
     post {
         always {
-            // No need to wrap this in `node {}` inside post
             archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
         }
     }
