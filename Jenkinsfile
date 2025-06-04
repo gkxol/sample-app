@@ -1,9 +1,8 @@
 pipeline {
     agent any
 
-    tools {
-        // You must configure this tool in Jenkins > Global Tool Configuration
-        dependencyCheck 'Default' 
+    environment {
+        // Optional: Add environment variables here
     }
 
     stages {
@@ -16,22 +15,26 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                // Add your build steps here (e.g., `mvn clean install`)
+                // Add your actual build commands here
             }
         }
 
         stage('Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: ''
+                dependencyCheck odcInstallation: 'Default', 
+                                isAutoupdateDisabled: true, 
+                                outdir: 'dependency-check-report',
+                                scanpath: '.', 
+                                suppressionFile: '', 
+                                additionalArguments: ''
             }
         }
     }
 
     post {
         always {
-            node {
-                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-            }
+            // No need to wrap this in `node {}` inside post
+            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
         }
     }
 }
