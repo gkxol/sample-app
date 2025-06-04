@@ -11,16 +11,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                // Add build tool commands here
-                // For example: sh 'mvn clean install'
+                // Add your build tool command here (e.g., sh 'mvn clean install')
             }
         }
 
         stage('Dependency Check') {
             steps {
                 dependencyCheck odcInstallation: 'Default',
-                                stopBuild: false,
-                                failBuildOnCVSS: '11' // Optional: Never fail unless CVSS > 10
+                                stopBuild: false
             }
         }
     }
