@@ -1,8 +1,9 @@
 pipeline {
     agent any
 
-    environment {
-        PATH = "${tool name: 'Default', type: 'org.jenkinsci.plugins.DependencyCheck.tools.DependencyCheckInstallation'}/bin:${env.PATH}"
+    tools {
+        // You must configure this tool in Jenkins > Global Tool Configuration
+        dependencyCheck 'Default' 
     }
 
     stages {
@@ -14,30 +15,23 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Setting up Python virtual environment and installing dependencies...'
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install -r requirements.txt
-                '''
+                echo 'Building...'
+                // Add your build steps here (e.g., `mvn clean install`)
             }
         }
 
-        stage('Security Scan - OWASP Dependency Check') {
+        stage('Dependency Check') {
             steps {
-                dependencyCheck odcInstallation: 'Default', additionalArguments: '''
-                    --project ComplianceDashboard
-                    --format HTML
-                    --out dependency-check-report
-                    --scan .
-                '''
+                dependencyCheck additionalArguments: ''
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'dependency-check-report/', allowEmptyArchive: true
+            node {
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            }
         }
     }
 }
